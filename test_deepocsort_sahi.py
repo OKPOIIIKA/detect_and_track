@@ -1,16 +1,11 @@
 import cv2
 import numpy as np
 from pathlib import Path
-import pandas as pd
-from ultralytics import YOLO
 from collections import Counter, defaultdict
 from sff import SFFReader
 from boxmot import DeepOcSort
 from sahi.auto_model import AutoDetectionModel
 from sahi.predict import get_sliced_prediction
-
-# model = YOLO('yolo11x.pt', verbose=False)
-# class_list = model.names  
 
 # print(class_list)
 sahi_model = AutoDetectionModel.from_pretrained(
@@ -110,7 +105,6 @@ crossed_12 = {}
 for frame_num, image, picket, timestamp in reader.get_frames():
     frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
     frame = cv2.resize(frame, target_size)
-    # results = model(frame)[0]
     results = get_sliced_prediction(
         image=frame,
         detection_model=sahi_model,
@@ -142,15 +136,6 @@ for frame_num, image, picket, timestamp in reader.get_frames():
         # если нет детекций, передаём пустой массив правильной формы
         detections = np.zeros((0, 6), dtype=np.float32)
 
-
-
-    # for box, cls, conf in zip(results.boxes.xyxy, results.boxes.cls, results.boxes.conf):
-    #     class_idx = int(cls.item())
-    #     if class_idx not in target_classes:
-    #         continue
-    #     x1, y1, x2, y2 = box.tolist()
-    #     detections.append([x1, y1, x2, y2, conf.item(), class_idx])
-    # detections = np.array(detections, dtype=np.float32)
     
     tracks = tracker.update(detections, frame)
 
