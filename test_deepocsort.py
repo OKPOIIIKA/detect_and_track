@@ -9,21 +9,13 @@ from ultralytics import YOLO
 from collections import Counter, defaultdict
 from sff import SFFReader
 from boxmot import DeepOcSort
-from sahi.auto_model import AutoDetectionModel
-from sahi.predict import get_sliced_prediction
+
 
 model = YOLO('yolo11x.pt', verbose=False)
 class_list = model.names  
 
 print(class_list)
-# sahi_model = AutoDetectionModel.from_pretrained(
-#     model_type="yolov11",
-#     model_path="yolo11x.pt",        
-#     confidence_threshold=0.3,
-#     device="cuda:0",
-#     image_size=320,
-# )
-# class_list = {int(k): v for k, v in sahi_model.category_mapping.items()}
+
 print(class_list)
 target_classes = [2, 3, 5, 7]
 
@@ -122,25 +114,6 @@ for frame_num, image, picket, timestamp in reader.get_frames():
     frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
     # frame = cv2.resize(frame, target_size)
     results = model(frame)[0]
-    # results = get_sliced_prediction(
-    #     image=frame,
-    #     detection_model=sahi_model,
-    #     slice_height=320,                # ваш image_size
-    #     slice_width=320,
-    #     overlap_height_ratio=0.2,
-    #     overlap_width_ratio=0.2,
-    #     perform_standard_pred=False,     # стандартный прогон по всему кадру не нужен
-    #     postprocess_type="NMS",          # после срезов объединяем NMS’ом
-    #     postprocess_match_metric="IOS",
-    #     postprocess_match_threshold=0.5,
-    #     postprocess_class_agnostic=False,
-    #     verbose=0,                        # бесшумно
-    # )
-
-    # dets = []
-    # for obj in results.object_prediction_list:
-    #     x1, y1, x2, y2 = obj.bbox.to_ltrb()
-
 
     detections = []
     for box, cls, conf in zip(results.boxes.xyxy, results.boxes.cls, results.boxes.conf):
